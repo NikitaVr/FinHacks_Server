@@ -57,8 +57,9 @@ def comparePass(query,collection_name):
     ret_user = collection_name.find_one({"username":query["username"],"password":query["password"]})
     return str(ret_user != None)
 
-def debtowed(query,collection_name):
+def canaccept(query,collection_name):
     current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
+    current_time = [int(i) for i in current_time]
     debt_owed_list = collection_name.find({"userTo":query["username"]})
     ret = True
     for i in debt_owed_list:
@@ -73,6 +74,7 @@ def debtowed(query,collection_name):
 
 def processTransaction(transactionDict):
     current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
+    current_time = [int(i) for i in current_time]
     userTo = get_userdata(transactionDict["userToName"], app_users)
     userFrom = get_userdata(transactionDict["userFromName"], app_users)
     transactions.insert(
@@ -107,6 +109,11 @@ def decrement_karma(query,collection):
 def index():
     return render_template("index.html")
 
+@app.route("/getkarma",methods=["POST"])
+def debt_owed():
+    json = request.json
+    owed = canaccept(json,app_users)
+    return owed
 @app.route("/getkarma",methods=["POST"])
 def ret_karma():
     json = request.json
