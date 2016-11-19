@@ -2,9 +2,9 @@ from flask import Flask, render_template, request, jsonify
 from pprint import pprint
 from pymongo import MongoClient
 import ast
-from datetime import datetime
-from time import strftime
-
+import datetime 
+import time
+from time import gmtime, strftime
 
 app = Flask(__name__)
 client = MongoClient('localhost',27017)
@@ -60,13 +60,16 @@ def comparePass(query,collection_name):
 def canaccept(query,collection_name):
     current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
     current_time = [int(i) for i in current_time]
+    dt = datetime.datetime(year=current_time[2], month=current_time[1], day=current_time[0])
+    current_time = time.mktime(dt.timetuple())
     debt_owed_list = collection_name.find({"userTo":query["username"]})
     ret = True
+    print(debt_owed_list)
+    print(current_time)
     for i in debt_owed_list:
-        if (i["expectedReturnDate"][0]<current_time[0])
-        and(i["expectedReturnDate"][1]<current_time[1])
-        and(i["expectedReturnDate"][2]<current_time[2]):
-        ret = False
+        print(i["expectedReturnDate"])
+        if(int(i["expectedReturnDate"])<current_time):
+            ret = False
     return str(ret)
 
 
@@ -75,11 +78,13 @@ def canaccept(query,collection_name):
 def processTransaction(transactionDict):
     current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
     current_time = [int(i) for i in current_time]
+    dt = datetime.datetime(year=current_time[2], month=current_time[1], day=current_time[0])
+    current_time = time.mktime(dt.timetuple())
     userTo = get_userdata(transactionDict["userToName"], app_users)
     userFrom = get_userdata(transactionDict["userFromName"], app_users)
     transactions.insert(
-        {"userTo" : userTo["_id"],
-        "userFrom" : userFrom["_id"],
+        {"userTo" : transactionDict["userToName"],
+        "userFrom" : transactionDict["userFromName"],
         "amount" : transactionDict["amount"],
         "type" : transactionDict["type"],
         "transactionDate" : current_time,
@@ -97,8 +102,7 @@ def processTransaction(transactionDict):
         upsert = False
     )
     
-    return "Success"
-    
+    return "Success"    
 def increment_karma(query,collection):
     collection.update({"username":query["username"]},{"$inc":{"upVote":1}})
 
@@ -109,10 +113,10 @@ def decrement_karma(query,collection):
 def index():
     return render_template("index.html")
 
-@app.route("/getkarma",methods=["POST"])
+@app.route("/owed",methods=["POST"])
 def debt_owed():
     json = request.json
-    owed = canaccept(json,app_users)
+    owed = canaccept(json,transactions)
     return owed
 @app.route("/getkarma",methods=["POST"])
 def ret_karma():
@@ -154,6 +158,7 @@ def verify():
 @app.route('/debug',methods = ['POST'])
 def debug():
     ret = debug_table(app_users)
+    ret += "\n\nTRANSACTIONS\n\n"+ debug_table(transactions)
     return ret
 @app.route('/changepass', methods = ['POST'])
 def changepass():
