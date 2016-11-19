@@ -25,6 +25,10 @@ def add_user(query, collection):
     except:
         return "Failed"
 
+def get_karma(query,collection):
+    ret_usr = collection.find_one({"username":query["username"]})
+    return str(ret_usr["upVote"])+"|"+str(ret_usr["downVote"])
+
 def insert_friend(query,collection):
     try:
        ret_usr1 = collection.find_one({"username":query["usr1"]})
@@ -83,6 +87,11 @@ def decrement_karma(query,collection):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/getkarma",methods=["POST"])
+def ret_karma():
+    json = request.json
+    return get_karma(json,app_users)
 @app.route("/addkarma",methods=["POST"])
 def add_karma():
      json = request.json
