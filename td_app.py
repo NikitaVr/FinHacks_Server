@@ -2,6 +2,10 @@ from flask import Flask, render_template, request, jsonify
 from pprint import pprint
 from pymongo import MongoClient
 import ast
+from datetime import datetime
+from time import strftime
+
+
 app = Flask(__name__)
 client = MongoClient('localhost',27017)
 db = client.FinhacksDB
@@ -53,7 +57,22 @@ def comparePass(query,collection_name):
     ret_user = collection_name.find_one({"username":query["username"],"password":query["password"]})
     return str(ret_user != None)
 
+def debtowed(query,collection_name):
+    current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
+    debt_owed_list = collection_name.find({"userTo":query["username"]})
+    ret = True
+    for i in debt_owed_list:
+        if (i["expectedReturnDate"][0]<current_time[0])
+        and(i["expectedReturnDate"][1]<current_time[1])
+        and(i["expectedReturnDate"][2]<current_time[2]):
+        ret = False
+    return str(ret)
+
+
+
+
 def processTransaction(transactionDict):
+    current_time = strftime("%Y-%m-%d %H:%M:%S").split(" ")[0].split("-")[::-1]
     userTo = get_userdata(transactionDict["userToName"], app_users)
     userFrom = get_userdata(transactionDict["userFromName"], app_users)
     transactions.insert(
@@ -61,7 +80,7 @@ def processTransaction(transactionDict):
         "userFrom" : userFrom["_id"],
         "amount" : transactionDict["amount"],
         "type" : transactionDict["type"],
-        "transactionDate" : transactionDict["transactionDate"],
+        "transactionDate" : current_time,
         "expectedReturnDate" : transactionDict["expectedReturnDate"]})
         
     app_users.update(
