@@ -29,19 +29,19 @@ def processTransaction(transactionDict):
         "transactionDate" : transactionDict["transactionDate"],
         "expectedReturnDate" : transactionDict["expectedReturnDate"]})
         
-   app_users.update(
-   {"username": transactionDict["userToName"]},
-   { "$inc": { "balance": int(transactionDict["amount"])} },
+    app_users.update(
+    {"username": transactionDict["userToName"]},
+    { "$inc": { "balance": int(transactionDict["amount"])} },
         upsert = False
     )
     
-   app_users.update(
-   {"username": transactionDict["userFromName"]},
-   { "$inc": { "balance": -int(transactionDict["amount"])} },
+    app_users.update(
+    {"username": transactionDict["userFromName"]},
+    { "$inc": { "balance": -int(transactionDict["amount"])} },
         upsert = False
     )
     
-   return "Success"
+    return "Success"
     
         
     
@@ -60,7 +60,7 @@ def post():
     return str(usr_data)
     
 @app.route('/transaction', methods = ['POST']) 
-def post():
+def postTransaction():
     # Get the parsed contents of the form data
     json = request.json
     
