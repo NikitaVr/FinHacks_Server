@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -44,8 +45,6 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
     private ArrayList<String> messagesToSendArray = new ArrayList<>();
     private ArrayList<String> messagesReceivedArray = new ArrayList<>();
     private Fragment currentFrag;
-    private int mode;
-    private NfcAdapter mNfcAdapter;
     private String lenderName, borrowerName;
     private float amountRequested;
 
@@ -55,7 +54,7 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
         setContentView(R.layout.activity_main);
 
         HttpRequest request = new HttpRequest(this);
-        mode = getIntent().getIntExtra("Mode", 1);
+        int mode = getIntent().getIntExtra("Mode", 1);
         if (mode == 1) {
             insertFragment(currentFrag = RequesterFragment.newInstance());
             request.getAccountBalance(getIntent().getStringExtra("username"), new ResultCallback() {
@@ -90,7 +89,7 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
             lenderName = getIntent().getStringExtra("username");
         }
         //Check if NFC is available on device
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter != null) {
             //This will refer back to createNdefMessage for what it will send
             mNfcAdapter.setNdefPushMessageCallback(this, this);
@@ -115,12 +114,13 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
 
     @Override
     public void onConfirm(View view) {
+        view.setVisibility(View.INVISIBLE);
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         Date date = null;
         try {
             date = format.parse("22/12/2016");
         } catch (java.text.ParseException e) {
-
+            Log.d("DEBUG", e.getMessage());
         }
         final Activity activity = this;
         Timestamp ts = new Timestamp(date.getTime());
@@ -129,20 +129,34 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
                     @Override
                     public void run() {
                         if (isSuccess()) {
-                            HttpRequest request = new HttpRequest(activity);
+                            JSONObject response = (JSONObject) getData();
+                            double balance = -1;
+                            try {
+                                balance = (double) response.get("lenderbalance");
+                            } catch (JSONException e) {
+                                Log.d("DEBUG", e.getMessage());
+                            }
+                            if (balance != -1)
+                                ((ReceiverFragment) currentFrag).getBalanceView().
+                                        setText("$" + balance);
+                            else
+                                ((ReceiverFragment) currentFrag).getBalanceView().setText("Undefined");
+                            activity.finish();
+                            /*HttpRequest request = new HttpRequest(activity);
                             request.getAccountBalance(getIntent().getStringExtra("username"), new ResultCallback() {
                                 @Override
                                 public void run() {
                                     if (isSuccess()) {
                                         double money = (double) getData();
-                                        ((RequesterFragment) currentFrag).getBalanceView().setText("$" +
-                                                Double.toString(money));
+                                        ((RequesterFragment) currentFrag).getBalanceView().
+                                                setText("$" + Double.toString(money));
                                     } else {
                                         ((RequesterFragment) currentFrag).getBalanceView().setText("Undefined");
                                         Log.d("DEBUG", getErr());
                                     }
+                                    activity.finish();
                                 }
-                            });
+                            });*/
                             Log.d("DEBUG", "Payment sent");
                         } else {
                             Log.d("DEBUG", "Error! Payment didn`t go through");
@@ -220,9 +234,15 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
                 }
                 amountRequested = Float.parseFloat(messagesReceivedArray.get(0));
                 borrowerName = messagesReceivedArray.get(1);
-                Toast.makeText(this, "Requested $" + messagesReceivedArray.get(0), Toast.LENGTH_LONG).show();
-                Toast.makeText(this, "Requested by " + messagesReceivedArray.get(1), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Requested $" + amountRequested, Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Requested by " + borrowerName, Toast.LENGTH_SHORT).show();
+                ((TextView) currentFrag.getView().findViewById(R.id.textView_amount_requested)).
+                        setText("$" + amountRequested);
+                ((TextView) currentFrag.getView().findViewById(R.id.textView_user_karma)).
+                        setText(borrowerName + "`s karma");
                 currentFrag.getView().findViewById(R.id.button_confirm_transaction).setVisibility(View.VISIBLE);
+                displayUpVotes(borrowerName);
+                displayDownVotes(borrowerName);
 
             } else {
                 Toast.makeText(this, "Received Blank Parcel", Toast.LENGTH_LONG).show();
@@ -253,8 +273,45 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.container, fragment);
-        transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    private void displayUpVotes(String username) {
+        final TextView upVotes = (TextView) currentFrag.getView().findViewById(R.id.upVotesRequest);
+        upVotes.setText("0");
+        HttpRequest request = new HttpRequest(this);
+        request.getUpvotes(username, new ResultCallback() {
+            @Override
+            public void run() {
+                if (isSuccess()) {
+                    double totalUpVotes = (double) getData();
+                    upVotes.setText(Double.toString(totalUpVotes));
+                } else {
+                    upVotes.setText("Undefined");
+                    Log.d("DEBUG", getErr());
+                }
+            }
+        });
+
+    }
+
+    private void displayDownVotes(String username) {
+        final TextView downVotes = (TextView) currentFrag.getView().findViewById(R.id.downVotesRequest);
+        downVotes.setText("0");
+        HttpRequest request = new HttpRequest(this);
+        request.getDownvotes(username, new ResultCallback() {
+            @Override
+            public void run() {
+                if (isSuccess()) {
+                    double totalDownVotes = (double) getData();
+                    downVotes.setText(Double.toString(totalDownVotes));
+                } else {
+                    downVotes.setText("Undefined");
+                    Log.d("DEBUG", getErr());
+                }
+            }
+        });
+
     }
 
     public void completeTransaction(String userSender, String userReceiver,
@@ -277,9 +334,20 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
                 jsonBody, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                // Display the first 500 characters of the response string.
-                callback.setSuccess(true);
-                callback.setData(response);
+                boolean status = false;
+                try{
+                    status = (boolean) response.get("status");
+                }
+                catch(JSONException e){
+                    callback.setSuccess(false);
+                }
+                if(status) {
+                    callback.setSuccess(true);
+                    callback.setData(response);
+                }
+                else{
+                    callback.setSuccess(false);
+                }
                 handler.post(callback);
                 Log.d("DEBUG", response.toString());
             }
@@ -289,88 +357,7 @@ public class TransactionActivity extends AppCompatActivity implements RequesterF
                 callback.setSuccess(false);
                 callback.setErr(error.getMessage());
                 handler.post(callback);
-                Log.d("DEBUG", "That didn't work!");
-            }
-        });
-        queue.add(jsonRequest);
-    }
-
-    public void increaseKarma(String username) {
-        final Handler handler = new Handler(Looper.getMainLooper());
-        RequestQueue queue = Volley.newRequestQueue(this);
-        final JSONObject jsonBody;
-        jsonBody = new JSONObject();
-        try {
-            jsonBody.put("username", username);
-        } catch (JSONException e) {
-            Log.d("DEBUG", e.getMessage());
-        }
-
-        JsonObjectRequest jsonRequest = new JsonObjectRequest("http://138.197.132.23/addkarma",
-                jsonBody, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        });
-        queue.add(jsonRequest);
-    }
-
-    public void decreaseKarma(String username) {
-        final Handler handler = new Handler(Looper.getMainLooper());
-        RequestQueue queue = Volley.newRequestQueue(this);
-        final JSONObject jsonBody;
-        jsonBody = new JSONObject();
-        try {
-            jsonBody.put("username", username);
-        } catch (JSONException e) {
-            Log.d("DEBUG", e.getMessage());
-        }
-
-        JsonObjectRequest jsonRequest = new JsonObjectRequest("http://138.197.132.23/decreasekarma",
-                jsonBody, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        });
-        queue.add(jsonRequest);
-    }
-
-    public void getKarma(String username, final ResultCallback callback) {
-        final Handler handler = new Handler(Looper.getMainLooper());
-        RequestQueue queue = Volley.newRequestQueue(this);
-        final JSONObject jsonBody;
-        jsonBody = new JSONObject();
-        try {
-            jsonBody.put("username", username);
-        } catch (JSONException e) {
-            Log.d("DEBUG", e.getMessage());
-        }
-
-        JsonObjectRequest jsonRequest = new JsonObjectRequest("http://138.197.132.23/getkarma",
-                jsonBody, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                // Display the first 500 characters of the response string.
-                callback.setSuccess(true);
-                callback.setData(response);
-                handler.post(callback);
-                Log.d("DEBUG", response.toString());
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                callback.setSuccess(false);
-                callback.setErr(error.getMessage());
-                handler.post(callback);
-                Log.d("DEBUG", "That didn't work!");
+                Log.d("DEBUG", error.getMessage());
             }
         });
         queue.add(jsonRequest);

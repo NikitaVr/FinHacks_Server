@@ -9,14 +9,19 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:layout_gravity="center">
+    android:gravity="center_horizontal">
+
+    <ImageView android:layout_width="140dp"
+        android:id="@+id/imageView1"
+        android:src="@drawable/ic_group_black_24dp2"
+        android:layout_height="140dp"
+        android:scaleType="centerInside"
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:text="Your balance:"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:id="@+id/textView"
         android:textSize="18sp" />
 
@@ -27,8 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="17dp"
         android:textSize="24sp"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/textView" />
 
     <EditText
         android:id="@+id/editText_transaction_amount"
@@ -37,11 +41,11 @@
         android:inputType="textPersonName"
         android:hint="Enter requested amount"
         android:ems="10"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="86dp" />
+        android:layout_marginTop="50dp" />
 
     <Button
         android:id="@+id/button_request_money"
+        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="Request"

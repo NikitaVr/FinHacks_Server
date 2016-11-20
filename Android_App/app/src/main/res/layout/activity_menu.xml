@@ -12,11 +12,22 @@
     tools:context="com.example.angeloaustria.buddylending.MenuActivity">
 
     <TextView
+        android:text="Current Balance: "
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:id="@+id/textView5"
+        android:textSize="18sp"
+        android:textAlignment="center"/>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView4"
         android:textSize="36sp"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:padding="10px"/>
 
     <TextView
         android:text="Do you want to send or receive money?"
@@ -24,7 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:id="@+id/textView3"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textAlignment="center"/>
 
     <Button
         android:text="Send"
@@ -44,4 +56,38 @@
         android:onClick="onReceiveClick"
         android:background="#4CAF50"
         android:textColor="#FFFFFF"/>
+
+    <TextView
+        android:text="Karma"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:id="@+id/karma"
+        android:textSize="18sp"
+        android:textAlignment="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/upVotes"
+            android:textSize="36sp"
+            android:textColor="@color/colorPrimary"
+            android:gravity="center_vertical|right"
+            android:paddingRight="20px"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/downVotes"
+            android:textSize="36sp"
+            android:textColor="#FF3F3F"
+            android:gravity="start|center_vertical"
+            android:paddingLeft="20px"/>
+    </LinearLayout>
 </LinearLayout>

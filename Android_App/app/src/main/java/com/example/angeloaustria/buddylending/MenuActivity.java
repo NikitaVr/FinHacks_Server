@@ -9,14 +9,18 @@ import android.widget.TextView;
 
 public class MenuActivity extends AppCompatActivity {
 
-    private TextView balance;
+    private TextView balance, upVotes, downVotes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         balance =  (TextView) findViewById(R.id.textView4);
+        upVotes = (TextView) findViewById(R.id.upVotes);
+        downVotes = (TextView) findViewById(R.id.downVotes);
         displayBalance();
+        displayUpVotes();
+        displayDownVotes();
     }
 
     @Override
@@ -57,5 +61,44 @@ public class MenuActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+
+    private void displayUpVotes(){
+        upVotes.setText("0");
+        HttpRequest request = new HttpRequest(this);
+        request.getUpvotes(getIntent().getStringExtra("username"), new ResultCallback() {
+            @Override
+            public void run() {
+                if(isSuccess()){
+                    double totalUpVotes = (double) getData();
+                    upVotes.setText(Double.toString(totalUpVotes));
+                }
+                else{
+                    upVotes.setText("Undefined");
+                    Log.d("DEBUG", getErr());
+                }
+            }
+        });
+
+    }
+
+    private void displayDownVotes(){
+        downVotes.setText("0");
+        HttpRequest request = new HttpRequest(this);
+        request.getDownvotes(getIntent().getStringExtra("username"), new ResultCallback() {
+            @Override
+            public void run() {
+                if(isSuccess()){
+                    double totalDownVotes = (double) getData();
+                    downVotes.setText(Double.toString(totalDownVotes));
+                }
+                else{
+                    downVotes.setText("Undefined");
+                    Log.d("DEBUG", getErr());
+                }
+            }
+        });
+
     }
 }

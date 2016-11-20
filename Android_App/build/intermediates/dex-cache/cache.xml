@@ -70,7 +70,7 @@
         jumboMode="true"
         optimize="true"
         revision="23.0.3"
-        sha1="13204ee329223fb64f2cc84c0f94078984a2359b">
+        sha1="acc23e9bdd71e0de1363550f9686c45e302866b5">
         <dex dex="D:\Android projects\BuddyLending\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_b612fdc644f3c1c93f6fd7ac5191a61842f13177\classes.dex" />
     </item>
     <item
@@ -88,7 +88,7 @@
         jumboMode="true"
         optimize="true"
         revision="23.0.3"
-        sha1="ce64959d6189096f54f868ae63812a97d900606c">
+        sha1="b2d6eb7c67e35b05a232d309d1a81b9d235705a4">
         <dex dex="D:\Android projects\BuddyLending\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_99123596ce3fd51125fee6d3aa17695f88642252\classes.dex" />
     </item>
     <item
