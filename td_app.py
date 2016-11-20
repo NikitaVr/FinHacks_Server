@@ -80,8 +80,11 @@ def processTransaction(transactionDict):
     current_time = [int(i) for i in current_time]
     dt = datetime.datetime(year=current_time[2], month=current_time[1], day=current_time[0])
     current_time = time.mktime(dt.timetuple())
-    userTo = get_userdata(transactionDict["userToName"], app_users)
+    #userTo = get_userdata(transactionDict["userToName"], app_users)
     userFrom = get_userdata(transactionDict["userFromName"], app_users)
+    if userFrom["balance"] < transactionDict["amount"]:
+        return False
+    print (transactionDict["userToName"])
     transactions.insert(
         {"userTo" : transactionDict["userToName"],
         "userFrom" : transactionDict["userFromName"],
