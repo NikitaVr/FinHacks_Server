@@ -11,6 +11,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionBarSize">144dp</item>
+        <item name="actionBarSize">144dp</item>
     </style>
+
 
 </resources>

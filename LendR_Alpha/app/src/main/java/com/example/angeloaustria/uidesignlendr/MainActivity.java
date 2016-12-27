@@ -1,6 +1,7 @@
 package com.example.angeloaustria.uidesignlendr;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,38 +9,102 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private FloatingActionButton fabAccount, fabLoan, fabBorrow;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private TextView balance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fabAccount = (FloatingActionButton) findViewById(R.id.fabAccount);
+        fabLoan = (FloatingActionButton) findViewById(R.id.fabLoan);
+        fabBorrow = (FloatingActionButton) findViewById(R.id.fabBorrow);
+
+        fabAccount.show();
+        fabBorrow.hide();
+        fabLoan.hide();
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        setCurrentBalance();
+
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                switch (position) {
+                    case 0:
+                        fabAccount.show();
+                        fabBorrow.hide();
+                        fabLoan.hide();
+                        break;
+
+                    case 1:
+                        fabAccount.hide();
+                        fabBorrow.show();
+                        fabLoan.hide();
+                        break;
+
+                    case 2:
+                        fabAccount.hide();
+                        fabBorrow.hide();
+                        fabLoan.show();
+                        break;
+
+                    default:
+                        fabAccount.hide();
+                        fabBorrow.hide();
+                        fabLoan.hide();
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    private void setCurrentBalance() {
+        // set the current balance in the toolbar
+        balance = (TextView) findViewById(R.id.balance);
+        balance.setText("$9999.99");
+        TextView balanceLabel = (TextView) findViewById(R.id.balanceLabel);
+        balanceLabel.setText("Current Balance");
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new OneFragment(), "Account");
-        adapter.addFragment(new TwoFragment(), "Loan");
-        adapter.addFragment(new ThreeFragment(), "Borrow");
+        adapter.addFragment(new AccountFragment(), "Account");
+        adapter.addFragment(new LoanFragment(), "Loan");
+        adapter.addFragment(new BorrowFragment(), "Borrow");
         viewPager.setAdapter(adapter);
     }
 
