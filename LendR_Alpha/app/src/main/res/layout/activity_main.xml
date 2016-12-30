@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -103,7 +104,7 @@
     android:layout_gravity="bottom|end"
     android:layout_margin="16dp"
     app:layout_anchor="@id/viewpager"
-    android:id="@+id/fabBorrow"
+    android:id="@+id/fabLoan"
     android:src="@drawable/ic_attach_money_black_24dp"
     app:layout_anchorGravity="bottom|right|end" />
 
@@ -113,7 +114,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         app:layout_anchor="@id/viewpager"
-        android:id="@+id/fabLoan"
+        android:id="@+id/fabBorrow"
         android:src="@drawable/ic_group_black_24dp"
         app:layout_anchorGravity="bottom|right|end" />
 

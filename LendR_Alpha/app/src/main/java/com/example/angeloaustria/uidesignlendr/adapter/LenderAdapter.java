@@ -12,7 +12,7 @@ import com.example.angeloaustria.uidesignlendr.entities.User;
 import java.util.List;
 
 
-public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.MyViewHolder> {
+public class LenderAdapter extends RecyclerView.Adapter<LenderAdapter.MyViewHolder> {
 
     private List<User> usersList;
 
@@ -29,14 +29,14 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.MyView
         }
     }
 
-    public BorrowerAdapter(List<User> usersList) {
+    public LenderAdapter(List<User> usersList) {
         this.usersList = usersList;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.borrow_list_row, parent, false);
+                .inflate(R.layout.lender_list_row, parent, false);
 
         return new MyViewHolder(itemView);
     }
@@ -47,7 +47,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.MyView
         holder.name.setText(user.getName());
         holder.goodKarma.setText(user.getGoodKarma());
         holder.badKarma.setText(user.getBadKarma());
-        holder.borrowedAmount.setText("You borrowed " + user.getBorrowedAmount() + " from " + user.getName());
+        holder.borrowedAmount.setText(user.getName() + " borrowed " + user.getBorrowedAmount() + " from you");
     }
 
     @Override
